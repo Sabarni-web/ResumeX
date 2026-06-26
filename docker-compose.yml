@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: resumex-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: resumex
+    networks:
+      - resumex-network
+
+  server:
+    build: ./server
+    container_name: resumex-server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+      - ml-service
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongodb:27017/resumex
+      - JWT_SECRET=resumex_jwt_secret_key_2024
+      - ML_SERVICE_URL=http://ml-service:8000
+      - PORT=5000
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    networks:
+      - resumex-network
+
+  ml-service:
+    build: ./ml-service
+    container_name: resumex-ml
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=info
+    volumes:
+      - ./ml-service:/app
+    networks:
+      - resumex-network
+
+  client:
+    build: ./client
+    container_name: resumex-client
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - resumex-network
+
+volumes:
+  mongo-data:
+
+networks:
+  resumex-network:
+    driver: bridge

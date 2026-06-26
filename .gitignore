@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Uploads
+server/src/uploads/resumes/*
+server/src/uploads/temp/*
+!server/src/uploads/resumes/.gitkeep
+!server/src/uploads/temp/.gitkeep
+
+# Python
+venv/
+.venv/
+env/
+*.pkl
+*.model
+*.h5
+
+# Build output
+client/dist/
+server/dist/
+
+# Test
+coverage/
+.pytest_cache/
+.nyc_output/
+
+# Docker
+docker-compose.override.yml
