@@ -1,23 +1,31 @@
 import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FiHome, 
-  FiFileText, 
-  FiBriefcase, 
-  FiVideo, 
-  FiPieChart, 
-  FiUser, 
-  FiSettings, 
+import {
+  FiHome,
+  FiFileText,
+  FiBriefcase,
+  FiVideo,
+  FiPieChart,
+  FiUser,
+  FiSettings,
   FiLogOut,
   FiChevronLeft,
-  FiChevronRight,
-  FiMenu
+  FiChevronRight
 } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setIsMobileOpen(false);
+    navigate('/', { replace: true });
+  };
 
   const menuItems = [
     { name: 'Dashboard', icon: <FiHome size={20} />, path: '/dashboard' },
@@ -95,7 +103,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           <FiSettings size={20} className="text-slate-400 group-hover:text-slate-600 dark:text-slate-500 dark:group-hover:text-slate-300" />
           {!isCollapsed && <span>Settings</span>}
         </button>
-        <button className="flex w-full items-center gap-3 px-3 py-2 rounded-xl text-danger hover:bg-danger/10 transition-colors group">
+        <button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 px-3 py-2 rounded-xl text-danger hover:bg-danger/10 transition-colors group">
           <FiLogOut size={20} />
           {!isCollapsed && <span>Log out</span>}
         </button>
@@ -139,3 +147,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 };
 
 export default Sidebar;
+
+
+
+

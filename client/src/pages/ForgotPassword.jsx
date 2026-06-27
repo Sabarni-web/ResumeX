@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { FiMail, FiArrowLeft } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import Button from '../components/common/Button';
+import { forgotPassword } from '../services/authService';
 
 const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -14,11 +15,16 @@ const ForgotPassword = () => {
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      await forgotPassword(data);
+      toast.success('Reset link sent to your email!');
+    } catch {
+      toast.success('If an account exists, a reset link will be sent.');
+    } finally {
       setIsLoading(false);
       setIsSubmitted(true);
-      toast.success('Reset link sent to your email!');
-    }, 1500);
+    }
   };
 
   return (
@@ -77,7 +83,7 @@ const ForgotPassword = () => {
           )}
 
           <div className="mt-8 text-center">
-            <Link to="/login" className="inline-flex items-center text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary-dark transition-colors">
+            <Link to="/signin" className="inline-flex items-center text-sm font-semibold text-slate-600 hover:text-primary dark:text-slate-400 dark:hover:text-primary-dark transition-colors">
               <FiArrowLeft className="mr-2" /> Back to Login
             </Link>
           </div>
@@ -88,3 +94,5 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+
+

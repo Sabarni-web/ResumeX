@@ -1,39 +1,43 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Button = ({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
-  fullWidth = false, 
-  className = '', 
+const Button = ({
+  children,
+  as: Component = 'button',
+  variant = 'primary',
+  size = 'md',
+  fullWidth = false,
+  className = '',
   isLoading = false,
-  ...props 
+  ...props
 }) => {
-  const baseStyles = "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
-  
+  const baseStyles = 'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+
   const variants = {
-    primary: "bg-primary text-white hover:bg-primary-dark shadow-md hover:shadow-lg focus:ring-primary",
-    secondary: "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 focus:ring-slate-400",
-    outline: "border-2 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 focus:ring-primary",
-    danger: "bg-danger text-white hover:bg-red-600 shadow-md hover:shadow-lg focus:ring-danger",
-    ghost: "bg-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 focus:ring-slate-400",
+    primary: 'bg-primary text-white hover:bg-primary-dark shadow-md hover:shadow-lg focus:ring-primary',
+    secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 focus:ring-slate-400',
+    outline: 'border-2 border-primary text-primary hover:bg-primary/5 dark:hover:bg-primary/10 focus:ring-primary',
+    danger: 'bg-danger text-white hover:bg-red-600 shadow-md hover:shadow-lg focus:ring-danger',
+    ghost: 'bg-transparent text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 focus:ring-slate-400',
   };
-  
+
   const sizes = {
-    sm: "px-3 py-1.5 text-sm",
-    md: "px-5 py-2.5 text-base",
-    lg: "px-8 py-3.5 text-lg",
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-5 py-2.5 text-base',
+    lg: 'px-8 py-3.5 text-lg',
   };
-  
-  const widthStyle = fullWidth ? "w-full" : "";
-  
+
+  const MotionComponent = motion(Component);
+  const widthStyle = fullWidth ? 'w-full' : '';
+  const disabled = isLoading || props.disabled;
+
   return (
-    <motion.button
-      whileHover={{ y: props.disabled || isLoading ? 0 : -2 }}
-      whileTap={{ scale: props.disabled || isLoading ? 1 : 0.98 }}
+    <MotionComponent
+      whileHover={{ y: disabled ? 0 : -2 }}
+      whileTap={{ scale: disabled ? 1 : 0.98 }}
       className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${widthStyle} ${className}`}
-      disabled={isLoading || props.disabled}
+      disabled={Component === 'button' ? disabled : undefined}
+      aria-disabled={Component !== 'button' && disabled ? true : undefined}
       {...props}
     >
       {isLoading ? (
@@ -43,7 +47,7 @@ const Button = ({
         </svg>
       ) : null}
       {children}
-    </motion.button>
+    </MotionComponent>
   );
 };
 

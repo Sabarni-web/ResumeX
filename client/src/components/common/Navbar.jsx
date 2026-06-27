@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import { FiMenu, FiX, FiSun, FiMoon, FiLogOut, FiUser, FiShield } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isAuthenticated, isAdmin, user, logout } = useAuth();
 
   // Handle scroll effect
   useEffect(() => {
@@ -44,11 +47,15 @@ const Navbar = () => {
     setIsOpen(false);
   }, [location.pathname]);
 
+  const handleLogout = () => {
+    logout();
+    navigate('/', { replace: true });
+  };
+
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Features', path: '/#features' },
-    { name: 'Pricing', path: '/#pricing' },
-    { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Features', path: '/features' },
+    { name: 'Pricing', path: '/pricing' },
   ];
 
   return (
@@ -71,11 +78,44 @@ const Navbar = () => {
             <Link 
               key={idx} 
               to={link.path}
-              className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-accent-cyan transition-colors"
+              className={`text-sm font-medium transition-colors ${
+                location.pathname === link.path
+                  ? 'text-primary dark:text-accent-cyan'
+                  : 'text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-accent-cyan'
+              }`}
             >
               {link.name}
             </Link>
           ))}
+
+          {/* Show "Analyze Resume" link if user is logged in and not admin */}
+          {isAuthenticated && !isAdmin && (
+            <Link
+              to="/analyze"
+              className={`text-sm font-medium transition-colors ${
+                location.pathname === '/analyze'
+                  ? 'text-primary dark:text-accent-cyan'
+                  : 'text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-accent-cyan'
+              }`}
+            >
+              Analyze Resume
+            </Link>
+          )}
+
+          {/* Show "Admin Panel" link if admin */}
+          {isAuthenticated && isAdmin && (
+            <Link
+              to="/dashboard"
+              className={`text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                location.pathname === '/dashboard'
+                  ? 'text-primary dark:text-accent-cyan'
+                  : 'text-slate-600 hover:text-primary dark:text-slate-300 dark:hover:text-accent-cyan'
+              }`}
+            >
+              <FiShield size={14} />
+              Admin Panel
+            </Link>
+          )}
         </div>
 
         {/* Desktop Actions */}
@@ -87,12 +127,43 @@ const Navbar = () => {
           >
             {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
           </button>
-          <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-primary dark:text-slate-300 transition-colors">
-            Log in
-          </Link>
-          <Link to="/register" className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
-            Get Started
-          </Link>
+
+          {!isAuthenticated ? (
+            <>
+              {/* Sign In button — user facing, visually different */}
+              <Link
+                to="/signin"
+                className="rounded-full border-2 border-primary/30 px-5 py-2 text-sm font-medium text-primary hover:bg-primary/5 dark:border-accent-cyan/30 dark:text-accent-cyan dark:hover:bg-accent-cyan/5 transition-all"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="rounded-full bg-primary px-5 py-2 text-sm font-medium text-white hover:bg-primary-dark transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              >
+                Get Started
+              </Link>
+            </>
+          ) : (
+            <div className="flex items-center gap-3">
+              {/* User info */}
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-accent-purple overflow-hidden border-2 border-white dark:border-slate-800 shadow-sm flex items-center justify-center">
+                  <FiUser size={14} className="text-white" />
+                </div>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 max-w-[120px] truncate">
+                  {user?.name || 'User'}
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-slate-600 hover:text-danger hover:bg-danger/5 dark:text-slate-400 dark:hover:text-danger transition-all"
+              >
+                <FiLogOut size={16} />
+                Logout
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -121,18 +192,56 @@ const Navbar = () => {
                 <Link 
                   key={idx} 
                   to={link.path}
-                  className="text-base font-medium text-slate-600 dark:text-slate-300"
+                  className={`text-base font-medium ${
+                    location.pathname === link.path
+                      ? 'text-primary dark:text-accent-cyan'
+                      : 'text-slate-600 dark:text-slate-300'
+                  }`}
                 >
                   {link.name}
                 </Link>
               ))}
+
+              {isAuthenticated && !isAdmin && (
+                <Link to="/analyze" className="text-base font-medium text-slate-600 dark:text-slate-300">
+                  Analyze Resume
+                </Link>
+              )}
+
+              {isAuthenticated && isAdmin && (
+                <Link to="/dashboard" className="text-base font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                  <FiShield size={16} />
+                  Admin Panel
+                </Link>
+              )}
+
               <hr className="border-slate-200 dark:border-slate-700" />
-              <Link to="/login" className="text-base font-medium text-slate-600 dark:text-slate-300">
-                Log in
-              </Link>
-              <Link to="/register" className="inline-block w-full text-center rounded-lg bg-primary px-5 py-3 text-base font-medium text-white shadow-md">
-                Get Started
-              </Link>
+
+              {!isAuthenticated ? (
+                <>
+                  <Link to="/signin" className="text-base font-medium text-primary dark:text-accent-cyan">
+                    Sign In
+                  </Link>
+                  <Link to="/register" className="inline-block w-full text-center rounded-lg bg-primary px-5 py-3 text-base font-medium text-white shadow-md">
+                    Get Started
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                    <FiUser size={16} />
+                    <span>{user?.name || 'User'}</span>
+                    {isAdmin && <span className="text-xs bg-red-500/10 text-red-500 px-2 py-0.5 rounded-full font-bold ml-2">Admin</span>}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-base font-medium text-danger"
+                  >
+                    <FiLogOut size={18} />
+                    Log Out
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         )}

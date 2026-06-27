@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { FiTrendingUp, FiFileText, FiTarget, FiMessageSquare } from 'react-icons/fi';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -8,6 +7,7 @@ import {
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 // Dummy data for charts
 const interviewData = [
@@ -28,11 +28,14 @@ const skillData = [
 ];
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const firstName = user?.name?.split(' ')[0] || 'there';
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">Welcome back, John! 👋</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 dark:text-white">Welcome back, {firstName}!</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Here is what's happening with your job search today.</p>
         </div>
         <Link to="/resume">
@@ -192,3 +195,5 @@ const ActivityCard = ({ title, type, score, date, status }) => {
 };
 
 export default Dashboard;
+
+

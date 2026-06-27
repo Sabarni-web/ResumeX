@@ -1,10 +1,12 @@
 import React, { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUploadCloud, FiFile, FiCheckCircle, FiAlertCircle, FiX } from 'react-icons/fi';
+import { FiUploadCloud, FiFile, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 
 const ResumeAnalyzer = () => {
+  const navigate = useNavigate();
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('idle'); // idle, uploading, processing, complete, error
@@ -158,7 +160,7 @@ const ResumeAnalyzer = () => {
                 <p className="text-slate-500 dark:text-slate-400 mb-6">Your resume has been successfully parsed and scored.</p>
                 <div className="flex gap-4">
                   <Button variant="outline" onClick={resetUpload}>Upload Another</Button>
-                  <Button onClick={() => window.location.href='/reports'}>View Results</Button>
+                  <Button onClick={() => navigate('/reports')}>View Results</Button>
                 </div>
               </div>
             )}
@@ -213,3 +215,4 @@ const ResumeAnalyzer = () => {
 };
 
 export default ResumeAnalyzer;
+

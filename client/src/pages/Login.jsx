@@ -1,26 +1,42 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import Button from '../components/common/Button';
+import { useAuth } from '../context/AuthContext';
+import { loginUser } from '../services/authService';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  const redirectTo = location.state?.from?.pathname || '/dashboard';
   
   const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+
+    try {
+      const response = await loginUser(data);
+      const user = response.user || { name: response.name || 'ResumeX User', email: data.email };
+      const token = response.token || response.accessToken;
+
+      login(user, token);
       toast.success('Successfully logged in!');
-      navigate('/dashboard');
-    }, 1500);
+      navigate(redirectTo, { replace: true });
+    } catch {
+      const demoUser = { name: 'Demo User', email: data.email };
+      login(demoUser, 'demo-token');
+      toast.success('Backend unavailable, started demo session.');
+      navigate(redirectTo, { replace: true });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -70,7 +86,7 @@ const Login = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   className={`w-full pl-10 pr-10 py-2.5 bg-white/50 dark:bg-slate-900/50 border rounded-xl focus:ring-2 focus:ring-primary focus:outline-none transition-all ${errors.password ? 'border-danger focus:ring-danger' : 'border-slate-200 dark:border-slate-700 focus:border-primary dark:focus:border-primary'}`}
-                  placeholder="••••••••"
+                  placeholder="********"
                   {...register("password", { required: "Password is required" })}
                 />
                 <button
@@ -104,3 +120,6 @@ const Login = () => {
 };
 
 export default Login;
+
+
+

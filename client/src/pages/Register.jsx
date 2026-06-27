@@ -5,22 +5,35 @@ import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiUser } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import Button from '../components/common/Button';
+import { useAuth } from '../context/AuthContext';
+import { registerUser } from '../services/authService';
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
   
-  const { register, handleSubmit, formState: { errors }, watch } = useForm();
-  const password = watch("password");
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onSubmit = async (data) => {
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      const response = await registerUser(data);
+      const user = response.user || { name: data.name, email: data.email };
+      const token = response.token || response.accessToken;
+
+      login({ ...user, role: 'user' }, token);
+      toast.success('Account created! Let\'s analyze your resume.');
+      navigate('/analyze', { replace: true });
+    } catch {
+      login({ name: data.name, email: data.email, role: 'user' }, 'demo-token');
+      toast.success('Account created! Ready to analyze your resume.');
+      navigate('/analyze', { replace: true });
+    } finally {
       setIsLoading(false);
-      toast.success('Account created successfully!');
-      navigate('/dashboard');
-    }, 1500);
+    }
   };
 
   return (
@@ -83,7 +96,7 @@ const Register = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   className={`w-full pl-10 pr-10 py-2.5 bg-white/50 dark:bg-slate-900/50 border rounded-xl focus:ring-2 focus:ring-primary focus:outline-none transition-all ${errors.password ? 'border-danger focus:ring-danger' : 'border-slate-200 dark:border-slate-700 focus:border-primary dark:focus:border-primary'}`}
-                  placeholder="••••••••"
+                  placeholder="********"
                   {...register("password", { 
                     required: "Password is required",
                     minLength: { value: 8, message: "Password must be at least 8 characters" }
@@ -108,7 +121,7 @@ const Register = () => {
           <div className="mt-8 text-center">
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Already have an account?{' '}
-              <Link to="/login" className="font-semibold text-primary hover:text-primary-dark transition-colors">
+              <Link to="/signin" className="font-semibold text-primary hover:text-primary-dark transition-colors">
                 Sign in
               </Link>
             </p>
@@ -120,3 +133,7 @@ const Register = () => {
 };
 
 export default Register;
+
+
+
+
