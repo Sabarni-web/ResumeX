@@ -1,16 +1,22 @@
-import os
-from dotenv import load_dotenv
+# pyrefly: ignore [missing-import]
+from pydantic_settings import BaseSettings
 
-load_dotenv()
+class Settings(BaseSettings):
+    PROJECT_NAME: str = "ResumeX ML Service"
+    API_V1_STR: str = "/api/v1"
+    
+    # ML Models config
+    SPACY_MODEL: str = "en_core_web_sm"
 
+    # Env vars
+    ENVIRONMENT: str = "development"
+    LOG_LEVEL: str = "info"
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
 
-class Settings:
-    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "info")
-    HOST: str = os.getenv("HOST", "0.0.0.0")
-    PORT: int = int(os.getenv("PORT", 8000))
-    MAX_FILE_SIZE: int = 10 * 1024 * 1024  # 10MB
-    SUPPORTED_FILE_TYPES: list = ["pdf", "docx"]
-
+    model_config = {
+        "env_file": ".env",
+        "extra": "ignore"
+    }
 
 settings = Settings()
