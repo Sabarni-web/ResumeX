@@ -1,9 +1,11 @@
 # pyrefly: ignore [missing-import]
 from fastapi import FastAPI
-# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
+from app.core.config import settings
 
-app = FastAPI(title="ResumeX ML Service", description="FastAPI service for Resume parsing and ML matching")
+from app.api.routes import resume, ats, interview
+
+app = FastAPI(title=settings.PROJECT_NAME, description="FastAPI service for Resume parsing and ML matching")
 
 app.add_middleware(
     CORSMiddleware,
@@ -12,6 +14,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(resume.router, prefix=f"{settings.API_V1_STR}/resume", tags=["Resume"])
+app.include_router(ats.router, prefix=f"{settings.API_V1_STR}/ats", tags=["ATS"])
+app.include_router(interview.router, prefix=f"{settings.API_V1_STR}/interview", tags=["Interview"])
 
 @app.get("/")
 def read_root():
